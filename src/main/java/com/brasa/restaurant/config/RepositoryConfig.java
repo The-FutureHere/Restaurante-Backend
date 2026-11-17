@@ -1,0 +1,1 @@
+package com.brasa.restaurant.config;import com.brasa.restaurant.repository.Repositories;import org.springframework.context.annotation.Configuration;import org.springframework.data.jpa.repository.config.EnableJpaRepositories;@Configuration@EnableJpaRepositories(basePackageClasses=Repositories.class,considerNestedRepositories=true)public class RepositoryConfig{}
