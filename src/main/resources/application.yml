@@ -20,7 +20,7 @@ app:
     secret: ${JWT_SECRET:uma-chave-local-de-desenvolvimento-com-no-minimo-32-bytes-123456}
     expiration-minutes: 480
   cors:
-    origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:5174}
+    origins: ${CORS_ORIGINS:https://restaurante-admin-frontend.vercel.app/,http://localhost:5174}
 ---
 spring:
   config:
