@@ -1,5 +1,13 @@
+# =====================================================================
+# BrasaOS backend
+# Perfil padrao: desenvolvimento local (H2 em arquivo).
+# Perfil "postgres": producao (ative com SPRING_PROFILES_ACTIVE=postgres).
+# Tudo que tem ${VARIAVEL:valor} pode ser sobrescrito por variavel de ambiente.
+# =====================================================================
+
 server:
   port: ${PORT:8080}
+  shutdown: graceful
 
 spring:
   datasource:
@@ -16,28 +24,47 @@ spring:
         format_sql: true
   flyway:
     enabled: false
+  h2:
+    console:
+      enabled: false
 
 app:
   registration:
-    master-code: ${REGISTRATION_MASTER_CODE:troque-este-codigo}
+    master-code: "${REGISTRATION_MASTER_CODE:HNW7J-SHQ9C-28AFM-Y6CMY}"
   jwt:
-    secret: ${JWT_SECRET:uma-chave-local-de-desenvolvimento-com-no-minimo-32-bytes-123456}
+    secret: "${JWT_SECRET:YyggkpLBPIOxjxg4HV8iOBQNgKph-XCLCJLdXrBUJsTjB65K7gM8SF2fm2cUdXx9}"
     expiration-minutes: 480
   cors:
-    origins: ${CORS_ORIGINS:https://restaurante-admin-frontend.vercel.app,http://localhost:5173,http://localhost:5174}
+    origins: "${CORS_ORIGINS:https://restaurante-admin-frontend.vercel.app,https://restaurante-mobile-frontend.vercel.app,http://localhost:5173,http://localhost:5174}"
 
 ---
+# Producao (Render + PostgreSQL). Os dados do banco NAO tem valor padrao:
+# se faltar alguma variavel, a aplicacao nao sobe, em vez de conectar errado.
 spring:
   config:
     activate:
       on-profile: postgres
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/restaurant}
-    username: ${DATABASE_USER:postgres}
-    password: ${DATABASE_PASSWORD:postgres}
+    url: "${DATABASE_URL}"
+    username: "${DATABASE_USER}"
+    password: "${DATABASE_PASSWORD}"
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
   flyway:
-    enabled: true
+    enabled: false
+
+server:
+  forward-headers-strategy: framework
+
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: WARN

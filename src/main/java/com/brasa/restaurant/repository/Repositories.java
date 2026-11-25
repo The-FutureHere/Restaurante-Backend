@@ -81,6 +81,8 @@ public final class Repositories {
     public interface MesaRepository extends JpaRepository<Mesa, String> {
 
         Optional<Mesa> findByRestauranteIdAndNumero(String r, int n);
+
+        List<Mesa> findByRestauranteId(String r);
     }
 
     public interface ChamadoRepository extends JpaRepository<Chamado, String> {

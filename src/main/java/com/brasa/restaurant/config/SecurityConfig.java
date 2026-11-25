@@ -58,7 +58,7 @@ public class SecurityConfig {
                     "/api/chamados/**",
                     "/api/mesas/**"
                 ).hasRole("ADMIN")
-                .requestMatchers("/api/pedidos/**", "/api/auth/me").authenticated()
+                .requestMatchers("/api/pedidos/**", "/api/auth/me", "/api/restaurante/**").authenticated()
                 .anyRequest().denyAll()
             )
             .addFilterBefore(jwt, UsernamePasswordAuthenticationFilter.class)
