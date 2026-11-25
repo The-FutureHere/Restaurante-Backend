@@ -1,27 +1,18 @@
 # =====================================================================
 # BrasaOS backend
-# Perfil padrao: desenvolvimento local (H2 em arquivo).
-# Perfil "postgres": producao (ative com SPRING_PROFILES_ACTIVE=postgres).
-# Tudo que tem ${VARIAVEL:valor} pode ser sobrescrito por variavel de ambiente.
+# Padrao (sem perfil): Supabase (PostgreSQL), pelo Session pooler.
+# Perfil "local": H2 em arquivo, para testar sem tocar no Supabase.
+#   mvn spring-boot:run -Dspring-boot.run.profiles=local
 # =====================================================================
 
 server:
   port: ${PORT:8080}
   shutdown: graceful
+  forward-headers-strategy: framework
 
 spring:
-  datasource:
-    url: jdbc:h2:file:./data/restaurant;MODE=PostgreSQL;AUTO_SERVER=TRUE
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
   jpa:
-    hibernate:
-      ddl-auto: update
     open-in-view: false
-    properties:
-      hibernate:
-        format_sql: true
   flyway:
     enabled: false
   h2:
@@ -38,33 +29,46 @@ app:
     origins: "${CORS_ORIGINS:https://restaurante-admin-frontend.vercel.app,https://restaurante-mobile-frontend.vercel.app,http://localhost:5173,http://localhost:5174}"
 
 ---
-# Producao (Render + PostgreSQL). Os dados do banco NAO tem valor padrao:
-# se faltar alguma variavel, a aplicacao nao sobe, em vez de conectar errado.
+# Supabase (Session pooler, porta 5432). NAO use a porta 6543.
 spring:
   config:
     activate:
-      on-profile: postgres
+      on-profile: "!local"
   datasource:
-    url: "${DATABASE_URL}"
-    username: "${DATABASE_USER}"
-    password: "${DATABASE_PASSWORD}"
+    url: "jdbc:postgresql://aws-0-us-east-2.pooler.supabase.com:5432/postgres?sslmode=require"
+    username: "postgres.axsfbinvpqafeihzvgkv"
+    password: "Vf962596141"
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 10
+      maximum-pool-size: 5
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: false
     properties:
       hibernate:
+        default_schema: app
         format_sql: false
-  flyway:
-    enabled: false
-
-server:
-  forward-headers-strategy: framework
 
 logging:
   level:
     root: INFO
     org.hibernate.SQL: WARN
+
+---
+# Desenvolvimento local com H2
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: jdbc:h2:file:./data/restaurant;MODE=PostgreSQL;AUTO_SERVER=TRUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
